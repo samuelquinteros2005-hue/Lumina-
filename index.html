@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina — Cada rostro guarda un mensaje</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8D5A3;
+    --dark: #0A0A0F;
+    --dark-2: #13131A;
+    --dark-3: #1C1C26;
+    --text: #F0EDE6;
+    --text-muted: #9B9590;
+    --purple: #7B6BA8;
+    --purple-light: #A99DC8;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(201,169,110,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(201,169,110,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(201,169,110,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 90%, rgba(255,255,255,0.1) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 45%, rgba(201,169,110,0.2) 0%, transparent 100%),
+      radial-gradient(2px 2px at 15% 55%, rgba(201,169,110,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(123,107,168,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .logo-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.25rem;
+    position: relative;
+  }
+
+  .logo-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .logo-ring {
+    animation: spin 12s linear infinite;
+    transform-origin: center;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 10vw, 64px);
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.6rem;
+  }
+
+  .tagline {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 3rem;
+    width: 100%;
+    max-width: 320px;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .divider-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* MAIN CARD */
+  .card {
+    width: 100%;
+    max-width: 360px;
+    background: var(--dark-2);
+    border: 0.5px solid rgba(201,169,110,0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  /* SCREEN: INTRO */
+  #screen-intro {
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .intro-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .intro-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 13px 20px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    margin-top: 0.75rem;
+  }
+
+  .btn-secondary:hover { border-color: rgba(201,169,110,0.4); color: var(--gold-light); }
+
+  .privacy-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+    opacity: 0.6;
+  }
+
+  /* SCREEN: CAMERA */
+  #screen-camera { display: none; }
+
+  .camera-header {
+    padding: 1.25rem 1.5rem 0.75rem;
+    text-align: center;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  }
+
+  .camera-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .video-wrap {
+    position: relative;
+    background: #000;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+  }
+
+  #video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1);
+  }
+
+  .face-guide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .face-oval {
+    width: 52%;
+    aspect-ratio: 3/4;
+    border: 1.5px solid rgba(201,169,110,0.5);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1000px rgba(0,0,0,0.3);
+  }
+
+  .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.7;
+  }
+  .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+  .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+  .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+  .corner-br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+
+  .camera-actions {
+    padding: 1.25rem 1.5rem;
+  }
+
+  #canvas { display: none; }
+
+  /* SCREEN: LOADING */
+  #screen-loading { display: none; padding: 3rem 2rem; text-align: center; }
+
+  .orb {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 2rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .orb-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.3);
+    animation: orbPulse 2s ease-in-out infinite;
+  }
+
+  .orb-ring:nth-child(2) {
+    inset: -12px;
+    border-color: rgba(201,169,110,0.15);
+    animation-delay: 0.4s;
+  }
+
+  .orb-ring:nth-child(3) {
+    inset: -24px;
+    border-color: rgba(201,169,110,0.08);
+    animation-delay: 0.8s;
+  }
+
+  .orb-inner {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(201,169,110,0.3), rgba(123,107,168,0.2));
+    border: 0.5px solid rgba(201,169,110,0.4);
+    z-index: 1;
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  .loading-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .loading-phrase {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-height: 20px;
+    transition: opacity 0.4s;
+  }
+
+  .dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: dotBounce 1.4s ease-in-out infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* SCREEN: RESULT */
+  #screen-result { display: none; }
+
+  .result-top {
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  }
+
+  .result-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .result-message {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  .result-bottom {
+    padding: 1.25rem 2rem;
+    background: var(--dark-3);
+  }
+
+  .result-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  .result-actions {
+    padding: 1.25rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .share-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    padding: 0 1.5rem 1.25rem;
+  }
+
+  /* SCREEN: ERROR */
+  #screen-error { display: none; padding: 2.5rem 2rem; text-align: center; }
+
+  .error-icon {
+    font-size: 40px;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .error-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .error-msg {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .footer p {
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.35;
+    letter-spacing: 0.08em;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes orbPulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes dotBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  @keyframes resultIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-animate {
+    animation: resultIn 0.6s ease both;
+  }
+
+  /* Camera icon SVG inline */
+  .icon-camera { display: inline-block; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-icon">
+      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="10" fill="rgba(201,169,110,0.15)" stroke="#C9A96E" stroke-width="0.8"/>
+        <circle cx="28" cy="28" r="4" fill="#C9A96E" opacity="0.8"/>
+        <g class="logo-ring">
+          <circle cx="28" cy="28" r="20" stroke="rgba(201,169,110,0.3)" stroke-width="0.5" stroke-dasharray="3 5"/>
+        </g>
+        <line x1="28" y1="4" x2="28" y2="12" stroke="#C9A96E" stroke-width="0.8" opacity="0.5"/>
+        <line x1="28" y1="44" x2="28" y2="52" stroke="#C9A96E" stroke-width="0.8" opacity="0.5"/>
+        <line x1="4" y1="28" x2="12" y2="28" stroke="#C9A96E" stroke-width="0.8" opacity="0.5"/>
+        <line x1="44" y1="28" x2="52" y2="28" stroke="#C9A96E" stroke-width="0.8" opacity="0.5"/>
+      </svg>
+    </div>
+    <h1>LUMINA</h1>
+    <p class="tagline">Cada rostro guarda un mensaje</p>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-dot"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+
+    <!-- INTRO -->
+    <div id="screen-intro">
+      <p class="intro-text">El universo tiene algo<br>que decirte hoy</p>
+      <p class="intro-sub">Deja que la luz revele lo que tu rostro guarda. Una foto. Un mensaje que fue escrito para ti.</p>
+      <button class="btn-primary" onclick="startCamera()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Revelar mi mensaje
+      </button>
+      <p class="privacy-note">Tu foto no se guarda. Solo se usa en este momento.</p>
+    </div>
+
+    <!-- CAMERA -->
+    <div id="screen-camera">
+      <div class="camera-header">
+        <p class="camera-label">Centra tu rostro en el óvalo</p>
+      </div>
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="face-guide">
+          <div class="face-oval"></div>
+        </div>
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+      </div>
+      <canvas id="canvas"></canvas>
+      <div class="camera-actions">
+        <button class="btn-primary" onclick="takePhoto()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/></svg>
+          Tomar foto
+        </button>
+        <button class="btn-secondary" onclick="resetApp()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="screen-loading">
+      <div class="orb">
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="orb-inner"></div>
+      </div>
+      <p class="loading-title">Leyendo tu energía...</p>
+      <p class="loading-phrase" id="loading-phrase">El oráculo está observando</p>
+      <div class="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screen-result">
+      <div class="result-top result-animate">
+        <p class="result-label">Tu mensaje de hoy</p>
+        <p class="result-message" id="result-message"></p>
+      </div>
+      <div class="result-bottom result-animate">
+        <p class="result-detail" id="result-detail"></p>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" onclick="resetApp()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+          Consultar de nuevo
+        </button>
+      </div>
+      <p class="share-note">Comparte este mensaje con alguien que lo necesite hoy</p>
+    </div>
+
+    <!-- ERROR -->
+    <div id="screen-error">
+      <svg class="error-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p class="error-title">El oráculo necesita un momento</p>
+      <p class="error-msg" id="error-msg">Algo salió mal. Intenta de nuevo.</p>
+      <button class="btn-primary" onclick="resetApp()">Intentar de nuevo</button>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>LUMINA &nbsp;·&nbsp; Cada rostro guarda un mensaje</p>
+  </div>
+
+</div>
+
+<script>
+  let stream = null;
+
+  const phrases = [
+    'El oráculo está observando...',
+    'Leyendo los patrones de tu energía...',
+    'Conectando con el universo...',
+    'Descubriendo lo que tu rostro revela...',
+    'Tu mensaje se está formando...',
+    'La luz habla por ti...'
+  ];
+
+  function show(id) {
+    ['intro','camera','loading','result','error'].forEach(s => {
+      const el = document.getElementById('screen-' + s);
+      el.style.display = s === id ? 'block' : 'none';
+    });
+  }
+
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } },
+        audio: false
+      });
+      document.getElementById('video').srcObject = stream;
+      show('camera');
+    } catch(e) {
+      document.getElementById('error-msg').textContent = 'No se pudo acceder a la cámara. Asegúrate de dar permiso cuando el navegador lo pida.';
+      show('error');
+    }
+  }
+
+  function stopCamera() {
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  }
+
+  function takePhoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0);
+    stopCamera();
+    const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+    analyzePhoto(base64);
+  }
+
+  async function analyzePhoto(base64) {
+    show('loading');
+    let i = 0;
+    const phraseEl = document.getElementById('loading-phrase');
+    const interval = setInterval(() => {
+      phraseEl.style.opacity = '0';
+      setTimeout(() => {
+        phraseEl.textContent = phrases[i % phrases.length];
+        phraseEl.style.opacity = '1';
+        i++;
+      }, 300);
+    }, 2200);
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: { type: 'base64', media_type: 'image/jpeg', data: base64 }
+              },
+              {
+                type: 'text',
+                text: `Eres Lumina, un oráculo que lee rostros y entrega mensajes del universo.
+
+Observa esta imagen con profundidad: la expresión, los ojos, la postura, la luz, el entorno, la energía general que transmite la persona. Cada detalle importa.
+
+Genera un mensaje personal, como si el universo le hablara directamente a esa persona en este momento de su vida. El mensaje debe mezclar tres tonos de forma natural: algo motivacional que le dé fuerza, algo espiritual u oracular que genere misterio, y algo de autoconocimiento que refleje quién es o quién puede llegar a ser.
+
+El mensaje tiene que sentirse escrito exactamente para esa persona, no genérico.
+
+Responde ÚNICAMENTE con este JSON, sin texto adicional, sin bloques de código:
+{
+  "mensaje": "El mensaje principal. 3 oraciones. Poético, íntimo, que toque el alma. En español.",
+  "detalle": "Una observación específica de algo que viste en la imagen que hace este mensaje único para esta persona. Empieza con 'En tu mirada...' o 'Tu expresión revela...' o similar. 1 oración. En español."
+}`
+              }
+            ]
+          }]
+        })
+      });
+
+      clearInterval(interval);
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || 'Error de conexión con el oráculo');
+      }
+
+      const data = await res.json();
+      const raw = data.content.map(b => b.text || '').join('').trim();
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      document.getElementById('result-message').textContent = parsed.mensaje;
+      document.getElementById('result-detail').textContent = parsed.detalle;
+      show('result');
+
+    } catch(e) {
+      clearInterval(interval);
+      document.getElementById('error-msg').textContent = e.message || 'No se pudo generar tu mensaje. Intenta de nuevo.';
+      show('error');
+    }
+  }
+
+  function resetApp() {
+    stopCamera();
+    show('intro');
+  }
+</script>
+</body>
+</html>
